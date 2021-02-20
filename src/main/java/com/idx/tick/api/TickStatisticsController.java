@@ -16,6 +16,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
+/**
+ *  TickStatisticsController : REST API that provides the following functionalities -
+ *  1. Publish ticks which are not older than allowed duration
+ *  2. Fetch the overall price statistics based on the ticks of all instruments in the sliding time interval
+ *  3. Fetch the price statistics based on the ticks of one instrument in the sliding time interval
+ */
+
+
 @Slf4j
 @RestController
 @RequestMapping("")
@@ -28,6 +36,12 @@ public class TickStatisticsController {
     private PriceAggregationService priceAggregationService;
 
 
+    /**
+     * Publish ticks which are not older than allowed time duration.
+     * Returns  201 status if successfully published.
+     *          204 status if the tick is older than predefined allowed time duration
+     * @param tick : pojo holding information about the instrument
+     */
     @PostMapping(value = "/ticks", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void publishTick(@RequestBody Tick tick) {
@@ -50,7 +64,12 @@ public class TickStatisticsController {
     }
 
 
-    @GetMapping("/statistics")
+    /**
+     * Fetches aggregated statistics for all ticks across all instruments that happened in last sliding time interval.
+     * @return  If success, returns 302 status with aggregated statistics for all ticks across all instruments.
+     *          Returns status 500 in case of any unexpected internal errors.
+     */
+    @GetMapping(value = "/statistics", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.FOUND)
     public StatDto getOverallStatistics() {
         log.debug("Received a request to fetch overall stat");
@@ -75,7 +94,13 @@ public class TickStatisticsController {
     }
 
 
-    @GetMapping("/statistics/{instrument_identifier}")
+    /**
+     * Fetches aggregated statistics for all ticks for a specific instrument that happened in last sliding time interval.
+     * @param instrumentIdentifier identifier for the instrument
+     * @return If success, returns 302 status with aggregated statistics for the given instrument.
+     *         Returns status 500 in case of any unexpected internal errors.
+     */
+    @GetMapping(value = "/statistics/{instrument_identifier}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.FOUND)
     public StatDto getStatisticsForInstrument(@PathVariable("instrument_identifier") String instrumentIdentifier) {
         log.debug("Received a request to fetch stat for instrument identifier {}", instrumentIdentifier);

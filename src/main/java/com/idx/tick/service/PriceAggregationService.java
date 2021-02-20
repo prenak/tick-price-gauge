@@ -25,7 +25,6 @@ public class PriceAggregationService {
 
     @Getter
     private final List<Tick> ticks = new CopyOnWriteArrayList<>();
-
     private final Stat overallStat = new Stat();
     private final Map<String, AtomicReference<Stat>> instrumentStatMap = new ConcurrentHashMap<>();
 
@@ -34,6 +33,11 @@ public class PriceAggregationService {
     private long slidingIntervalInMs;
 
 
+    /**
+     * Adds the tick to the list if valid and does the price aggregations
+     * @param tick Tick
+     * @throws TickOlderThanAllowedDurationException if tick is older than the allowed time duration
+     */
     public void processTick(Tick tick) throws TickOlderThanAllowedDurationException {
         Assert.notNull(tick, "Tick passed is null");
 
@@ -49,7 +53,10 @@ public class PriceAggregationService {
         updateStatForInstrument(instrument, newInstrumentStat);
     }
 
-
+    /**
+     * Fetches the overall price stats across all the instruments based on the ticks added in the current sliding time interval
+     * @return Optional of price statistics if it was last updated in the current sliding time interval. Else empty
+     */
     public Optional<Stat> getOverallStat() {
         if (ObjectUtils.isEmpty(overallStat.getLastUpdatedTs())) return Optional.empty();
 
@@ -58,6 +65,10 @@ public class PriceAggregationService {
     }
 
 
+    /**
+     * Fetches the price stats for a specific instrument based on the ticks that were added in the current sliding time interval
+     * @return Optional of price statistics if it was last updated in the current sliding time interval. Else empty
+     */
     public Optional<Stat> getStatForInstrument(String instrument) {
         Assert.hasText(instrument, "Instrument passed is either null or empty");
 
@@ -80,6 +91,7 @@ public class PriceAggregationService {
 
     private synchronized Stat aggregateTickStats(String instrument) {
         Assert.hasText(instrument, "Instrument passed is either null or empty");
+        log.debug("Starting the price aggregation for instrument: {}", instrument);
         long currentTimestamp = System.currentTimeMillis();
 
         DoubleSummaryStatistics dss = ticks.stream()

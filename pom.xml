@@ -13,9 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Tick-Price-Gauge</name>
 	<description>API to provide real-time price statistics</description>
+	<packaging>jar</packaging>
+
 	<properties>
 		<java.version>11</java.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -85,6 +88,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>tick-price-gauge</finalName>
 	</build>
 
 </project>
