@@ -41,7 +41,7 @@ public class PriceAggregationService {
     public void processTick(Tick tick) throws TickOlderThanAllowedDurationException {
         Assert.notNull(tick, "Tick passed is null");
 
-        if (! didTickHappenedInPastOf(System.currentTimeMillis(), tick.getTimestamp())) {
+        if (! didTickHappenInPastOf(System.currentTimeMillis(), tick.getTimestamp())) {
             throw new TickOlderThanAllowedDurationException(tick, slidingIntervalInMs);
         }
 
@@ -95,13 +95,13 @@ public class PriceAggregationService {
         long currentTimestamp = System.currentTimeMillis();
 
         DoubleSummaryStatistics dss = ticks.stream()
-                .filter(tick -> didTickHappenedInPastOf(currentTimestamp, tick.getTimestamp()))
+                .filter(tick -> didTickHappenInPastOf(currentTimestamp, tick.getTimestamp()))
                 .mapToDouble(Tick::getPrice)
                 .summaryStatistics();
         overallStat.update(dss.getAverage(), dss.getMax(), dss.getMin(), dss.getCount(), currentTimestamp);
 
         dss = ticks.stream()
-                .filter(tick -> instrument.equals(tick.getInstrument())  &&  didTickHappenedInPastOf(currentTimestamp, tick.getTimestamp()))
+                .filter(tick -> instrument.equals(tick.getInstrument())  &&  didTickHappenInPastOf(currentTimestamp, tick.getTimestamp()))
                 .mapToDouble(Tick::getPrice)
                 .summaryStatistics();
         return new Stat(dss.getAverage(), dss.getMax(), dss.getMin(), dss.getCount(), currentTimestamp);
@@ -124,7 +124,7 @@ public class PriceAggregationService {
     }
 
 
-    private boolean didTickHappenedInPastOf(long timestampToCompare, long tickTimestamp) {
+    private boolean didTickHappenInPastOf(long timestampToCompare, long tickTimestamp) {
         return (timestampToCompare - slidingIntervalInMs) <= tickTimestamp;
     }
 }
