@@ -19,6 +19,10 @@ Application health and info can be monitored via actuator management context.
 - http://localhost:8084/actuator/health
 - http://localhost:8084/actuator/info  
 
+### Sliding time interval for price aggregation:
+The sliding time interval can be configured in application.properties.  
+> Test cases use a sliding time interval of 1 second which is configured in application-test.properties.  
+
 
 ## REST Endpoints
 
